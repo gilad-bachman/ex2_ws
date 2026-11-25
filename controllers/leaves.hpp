@@ -46,8 +46,10 @@ namespace argos {
    };
 
    /*
-    * GoTo: drive to a point (along the m-line, if given one).
-    *    SUCCESS: arrived. FAILURE: no progress for a while (Bug2's hit point).
+    * GoTo (yellow): drives straight to a target point, sliding around small
+    * obstacles on the way. In Bug2 this is "move along the m-line".
+    *    SUCCESS: within 5 cm of the target
+    *    FAILURE: no progress for 5 s, blocked by an obstacle (Bug2's hit point)
     */
    class CGoTo : public CLeaf {
 
@@ -69,9 +71,11 @@ namespace argos {
    };
 
    /*
-    * FollowWall: Bug2's boundary following (Lecture 7, slide 6).
-    *    SUCCESS: on the m-line again, closer to the target than the hit point.
-    *    FAILURE: back at the hit point, or a timeout.
+    * FollowWall (magenta): gets around an obstacle that blocked GoTo by
+    * following its edge, keeping it on one side (Bug2, Lecture 7, slide 6).
+    *    SUCCESS: back on the m-line, closer to the target than where it
+    *             started: GoTo can take over again
+    *    FAILURE: went all the way around (back at the start), or 20 s
     */
    class CFollowWall : public CLeaf {
 
@@ -98,7 +102,12 @@ namespace argos {
       Real m_fPrevError = 0.0;
    };
 
-   /* WalkAround: drive in a random direction for f_duration seconds, then SUCCESS */
+   /*
+    * WalkAround (cyan): drives in a random direction for a few seconds, to
+    * get the robot out of a spot where FollowWall could not help.
+    *    SUCCESS: after f_duration seconds
+    *    FAILURE: never
+    */
    class CWalkAround : public CLeaf {
 
    public:
@@ -130,33 +139,58 @@ namespace argos {
       size_t m_unLight;
    };
 
+   /*
+    * IsLightVisited? (gray): has this light already been visited?
+    *    SUCCESS: yes, so the robot can skip it (for example after a recharge)
+    *    FAILURE: no
+    */
    class CIsLightVisited : public CLightCondition {
    public:
       using CLightCondition::CLightCondition;
       EStatus Tick() override;
    };
 
+   /*
+    * IsLightKnown? (pink): does the robot know where this light is, because the
+    * camera has seen it at some point?
+    *    SUCCESS: yes, so no need to search
+    *    FAILURE: no
+    */
    class CIsLightKnown : public CLightCondition {
    public:
       using CLightCondition::CLightCondition;
       EStatus Tick() override;
    };
 
-   /* IsBatteryLow?: SUCCESS if the battery is too low for the way home (threshold in leaves.cpp) */
+   /*
+    * IsBatteryLow? (light gray): is it time to go home and charge? The
+    * threshold grows with the distance to the charger (see leaves.cpp).
+    *    SUCCESS: yes, the battery is below the threshold
+    *    FAILURE: no
+    */
    class CIsBatteryLow : public CLeaf {
    public:
       using CLeaf::CLeaf;
       EStatus Tick() override;
    };
 
-   /* Charge: stand on the charger until full. FAILURE if not on it. */
+   /*
+    * Charge (purple): stands still on the charger while the battery fills up.
+    *    SUCCESS: the battery is full
+    *    FAILURE: the robot is not on the charger
+    */
    class CCharge : public CLeaf {
    public:
       using CLeaf::CLeaf;
       EStatus Tick() override;
    };
 
-   /* StayHome: stand still on the charger long enough to count as home */
+   /*
+    * StayHome (brown): the last step of the mission. Stands still on the
+    * charger for 2.5 s, so the referee counts the robot as home.
+    *    SUCCESS: 2.5 s on the charger
+    *    FAILURE: the robot is not on the charger
+    */
    class CStayHome : public CLeaf {
 
    public:
@@ -170,7 +204,12 @@ namespace argos {
       Real m_fEndTime = 0.0;
    };
 
-   /* SearchLight: random walk until the light is known. Never fails. */
+   /*
+    * SearchLight (orange): looks for a light by driving in a new random
+    * direction every 5 s, until the camera has seen it.
+    *    SUCCESS: the light's position is known
+    *    FAILURE: never
+    */
    class CSearchLight : public CLeaf {
 
    public:
@@ -189,7 +228,12 @@ namespace argos {
       Real m_fLegEnd = 0.0;
    };
 
-   /* Visit: stand still at the light long enough to count, then mark it visited */
+   /*
+    * Visit (white): stands still at a light for 2.5 s, so the referee counts
+    * the visit, then marks the light as visited on the blackboard.
+    *    SUCCESS: 2.5 s at the light
+    *    FAILURE: the robot drifted away from the light
+    */
    class CVisit : public CLeaf {
 
    public:

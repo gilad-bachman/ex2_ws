@@ -41,6 +41,7 @@ namespace argos {
       const CColor PINK(255, 105, 180);
    }
 
+   /* IsBatteryLow?: is the battery below what the way home needs? */
    EStatus CIsBatteryLow::Tick() {
       m_cActuators.SetLEDs(CColor::GRAY80);
       Real fDistance = (m_sBoard.Home - m_sBoard.Position).Length();
@@ -49,6 +50,7 @@ namespace argos {
       return (m_sBoard.BatteryLevel < fThreshold) ? EStatus::SUCCESS : EStatus::FAILURE;
    }
 
+   /* Charge: stand on the charger until the battery is full */
    EStatus CCharge::Tick() {
       m_cActuators.SetLEDs(CColor::PURPLE);
       m_cActuators.Stop();
@@ -60,6 +62,7 @@ namespace argos {
       return EStatus::RUNNING;
    }
 
+   /* StayHome: stand still on the charger so the referee counts the robot as home */
    EStatus CStayHome::Tick() {
       m_cActuators.SetLEDs(CColor::BROWN);
       m_cActuators.Stop();
@@ -82,16 +85,19 @@ namespace argos {
       return EStatus::RUNNING;
    }
 
+   /* IsLightVisited?: was this light already visited? */
    EStatus CIsLightVisited::Tick() {
       m_cActuators.SetLEDs(CColor::GRAY50);
       return m_sBoard.LightVisited[m_unLight] ? EStatus::SUCCESS : EStatus::FAILURE;
    }
 
+   /* IsLightKnown?: has the camera seen this light? */
    EStatus CIsLightKnown::Tick() {
       m_cActuators.SetLEDs(PINK);
       return m_sBoard.LightKnown[m_unLight] ? EStatus::SUCCESS : EStatus::FAILURE;
    }
 
+   /* GoTo: drive to the target; fail when blocked (the hit point) */
    EStatus CGoTo::Tick() {
       m_cActuators.SetLEDs(CColor::YELLOW);
 
@@ -130,6 +136,7 @@ namespace argos {
       return EStatus::RUNNING;
    }
 
+   /* FollowWall: Bug2, follow the obstacle until a leave point on the m-line */
    EStatus CFollowWall::Tick() {
       m_cActuators.SetLEDs(CColor::MAGENTA);
 
@@ -191,6 +198,7 @@ namespace argos {
       return std::abs(cLine.GetX() * cToRobot.GetY() - cLine.GetY() * cToRobot.GetX()) / fLength;
    }
 
+   /* WalkAround: drive in a random direction for a while */
    EStatus CWalkAround::Tick() {
       m_cActuators.SetLEDs(CColor::CYAN);
 
@@ -210,6 +218,7 @@ namespace argos {
       return EStatus::RUNNING;
    }
 
+   /* SearchLight: random walk until the light is seen */
    EStatus CSearchLight::Tick() {
       if (m_sBoard.LightKnown[m_unLight]) {
          m_bStarted = false;
@@ -230,6 +239,7 @@ namespace argos {
       return EStatus::RUNNING;
    }
 
+   /* Visit: stand still at the light, then mark it visited */
    EStatus CVisit::Tick() {
       m_cActuators.SetLEDs(CColor::WHITE);
       m_cActuators.Stop();
