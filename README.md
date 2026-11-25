@@ -17,7 +17,6 @@
 | `IsLightKnown?` | pink | Condition: does the robot know where this light is? |
 | `IsBatteryLow?` | light gray | Condition: is the battery too low for the way home? |
 
-Conditions answer at once, so in a tick that goes on to an action leaf, that leaf's color is the one shown. No leaf uses red, green or blue, so the camera cannot mistake the robot's LEDs for a light.
 
 ## Sources
 
@@ -25,4 +24,4 @@ Conditions answer at once, so in a tick that goes on to an action leaf, that lea
 - **Tutorial 4:** going to a point by P control on the heading (slides 14–16), and the PD wall follower (slides 7–10).
 - **Lectures 6 and 7:** the Bug algorithms; `GoTo` + `FollowWall` are Bug2 (Lecture 7, slide 6).
 - **ARGoS source code:** the Pi-puck's top wheel speed (`MAX_WHEEL_VELOCITY`) and the rangefinder directions (`ci_pipuck_rangefinders_sensor.cpp`).
-- **AI assistance:** developed with the help of an AI coding assistant (Claude, by Anthropic). <!-- TODO: describe which parts, per the course's policy. -->
+- **AI assistance:** developed with the help of Claude Code (helping in writing, organizing, comments and debugging)
