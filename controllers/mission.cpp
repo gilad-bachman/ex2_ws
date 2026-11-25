@@ -32,7 +32,7 @@ namespace argos {
 
       /* Find it: already known, else search */
       auto pcFind = std::make_unique<CFallback>();
-      pcFind->Add(std::make_unique<CIsLightKnown>(sBoard, un_index));
+      pcFind->Add(std::make_unique<CIsLightKnown>(sBoard, s_ctx.Actuators, un_index));
       pcFind->Add(std::make_unique<CSearchLight>(sBoard, s_ctx.Actuators, s_ctx.RNG, un_index));
 
       /* Find, get there, visit */
@@ -43,7 +43,7 @@ namespace argos {
 
       /* Skip it if already visited (after a recharge, for example) */
       auto pcRoot = std::make_unique<CFallback>();
-      pcRoot->Add(std::make_unique<CIsLightVisited>(sBoard, un_index));
+      pcRoot->Add(std::make_unique<CIsLightVisited>(sBoard, s_ctx.Actuators, un_index));
       pcRoot->Add(std::move(pcDo));
       return pcRoot;
    }
@@ -51,7 +51,7 @@ namespace argos {
    std::unique_ptr<CNode> MakeRecharge(const SMissionContext& s_ctx) {
       SBlackboard& sBoard = s_ctx.Board;
       auto pcRecharge = std::make_unique<CSequence>();
-      pcRecharge->Add(std::make_unique<CIsBatteryLow>(sBoard));
+      pcRecharge->Add(std::make_unique<CIsBatteryLow>(sBoard, s_ctx.Actuators));
       pcRecharge->Add(MakeGetThere(s_ctx, [&sBoard]() { return sBoard.Home; }));
       pcRecharge->Add(std::make_unique<CCharge>(sBoard, s_ctx.Actuators));
       return pcRecharge;
