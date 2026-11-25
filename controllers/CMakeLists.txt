@@ -1,6 +1,16 @@
+# Exercise 2 - ID: 211397054
+
 set(SRC
   controller2.hpp
   controller2.cpp
+  behavior_tree.hpp
+  blackboard.hpp
+  actuators.hpp
+  actuators.cpp
+  leaves.hpp
+  leaves.cpp
+  mission.hpp
+  mission.cpp
   # Add other controller source files here
 )
 

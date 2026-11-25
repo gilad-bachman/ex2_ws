@@ -1,5 +1,5 @@
 /*
- * Exercise 2 - ID: <your ID here>
+ * Exercise 2 - ID: 211397054
  */
 #ifndef CONTROLLER2_HPP
 #define CONTROLLER2_HPP
@@ -15,6 +15,15 @@
 
 #include "battery.hpp"
 #include "light_order.hpp"
+#include "behavior_tree.hpp"
+#include "blackboard.hpp"
+#include "actuators.hpp"
+#include "leaves.hpp"
+#include "mission.hpp"
+
+#include <argos3/core/utility/math/rng.h>
+#include <memory>
+#include <string>
 
 namespace argos {
 
@@ -40,6 +49,22 @@ namespace argos {
 
       /* The lights, in the order to visit them (sensors/light_order.hpp) */
       std::vector<SLightInfo> m_vecOrder;
+
+      /* Write this step's sensor readings into the blackboard */
+      void UpdateBlackboard();
+
+      /* What the robot knows, shared by every node */
+      SBlackboard m_sBlackboard;
+
+      /* The actuators, for the leaves */
+      std::unique_ptr<CActuators> m_pcActuators;
+
+      /* Random numbers, for WalkAround */
+      CRandom::CRNG* m_pcRNG = nullptr;
+
+      /* The executive: the root of the behavior tree. Declared last, so it is
+         destroyed first: its leaves hold references to the members above */
+      std::unique_ptr<CNode> m_pcRoot;
    };
 }
 
